@@ -9,12 +9,15 @@ public class PlayerController : MonoBehaviour
 
     public float maxSpeed, jumpForce, moveForce;
     public Transform groundCheck;
+    public Transform restratPoint;
     public LayerMask ground;
+    public LayerMask deadZone;
 
-    public bool isGround, isJump;
+    public bool isGround, isJump, isDead;
     public int jumpAbility;
     public PhysicsMaterial2D withFriction;//有摩擦力的材质
     public PhysicsMaterial2D withoutFriction;//没有摩擦力的材质
+    public GameplayController gameplayController;
     bool jumpPressed;
 
     int jumpCount;
@@ -23,6 +26,7 @@ public class PlayerController : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
+        restratPoint.parent = null;
     }
 
 
@@ -33,10 +37,18 @@ public class PlayerController : MonoBehaviour
         {
             jumpPressed = true;
         }
+        if (isDead)
+        {
+            transform.position = restratPoint.position;
+            isDead = false;
+            gameplayController.isWaitingForChangeColor = true;
+            gameplayController.j = 0;
+        }
     }
     private void FixedUpdate()
     {
         isGround = Physics2D.OverlapCircle(groundCheck.position, 0.1f, ground);
+        isDead = Physics2D.OverlapCircle(groundCheck.position, 0.1f, deadZone);
 
         GroundMovement();
         Jump();
@@ -57,6 +69,10 @@ public class PlayerController : MonoBehaviour
         if (horizontalMove != 0)
         {
             transform.localScale = new Vector3(horizontalMove, 1, 1);
+        }
+        else
+        {
+            rb.velocity = new Vector3(0, rb.velocity.y, 0);
         }
     }
 

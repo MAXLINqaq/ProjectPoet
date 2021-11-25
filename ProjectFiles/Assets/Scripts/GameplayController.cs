@@ -10,8 +10,10 @@ public class GameplayController : MonoBehaviour
     public string[] queue;
     public GameObject[] platforms;
 
+    public PlayerController playerController;
+
     public int j;
-    private bool isWaitingForChangeColor;
+    public  bool isWaitingForChangeColor;
 
     private List<string> poems = new List<string>();
 
@@ -29,7 +31,6 @@ public class GameplayController : MonoBehaviour
     void Update()
     {
         ChangeColor();
-        Debug.Log(queue.Length);
     }
     private void ChangeColor()
     {
@@ -44,6 +45,7 @@ public class GameplayController : MonoBehaviour
                 }
                 else
                 {
+
                     platforms[i].GetComponentInChildren<SpriteRenderer>().color = Color.white;
                     platforms[i].GetComponentInChildren<Text>().color = Color.black;
                 }
@@ -53,21 +55,31 @@ public class GameplayController : MonoBehaviour
     }
     private void OnCollisionEnter2D(Collision2D coll)
     {
-        if (j < queue.Length)
+
+        if (coll.gameObject.tag == queue[j])
         {
-            if (coll.gameObject.tag == queue[j])
+            isWaitingForChangeColor = true;
+            poems.Add(queue[j]);
+            j++;
+            if (j == queue.Length)
             {
-                isWaitingForChangeColor = true;
-                poems.Add(queue[j]);
-                if (j < queue.Length - 1)
-                {
-                    j++;
-                }
+                j = 0;
+                poems.Add("。\n");
             }
+        }
+        else if (coll.gameObject.tag == "Untagged")
+        {
+
         }
         else
         {
-            isWaitingForChangeColor = false;
+            playerController.isDead = true;
+            j = 0;
+            isWaitingForChangeColor = true;
+            for (int i = poems.Count - 1; i >= 0; i--)
+            {
+                poems.Remove(poems[i]);
+            }
         }
     }
 }
