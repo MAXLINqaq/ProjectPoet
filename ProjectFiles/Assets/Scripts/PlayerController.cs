@@ -7,7 +7,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private Collider2D coll;
 
-    public float speed, jumpForce;
+    public float maxSpeed, jumpForce, moveForce;
     public Transform groundCheck;
     public LayerMask ground;
 
@@ -45,7 +45,15 @@ public class PlayerController : MonoBehaviour
     void GroundMovement()
     {
         float horizontalMove = Input.GetAxisRaw("Horizontal");
-        rb.velocity = new Vector2(horizontalMove * speed, rb.velocity.y);
+        if (Mathf.Abs(rb.velocity.x) < maxSpeed)
+        {
+            rb.AddForce(new Vector3(horizontalMove, 0, 0) * moveForce);
+        }
+        else
+        {
+            rb.velocity = new Vector3(horizontalMove * maxSpeed, rb.velocity.y, 0);
+        }
+
         if (horizontalMove != 0)
         {
             transform.localScale = new Vector3(horizontalMove, 1, 1);

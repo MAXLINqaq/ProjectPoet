@@ -29,6 +29,7 @@ public class GameplayController : MonoBehaviour
     void Update()
     {
         ChangeColor();
+        Debug.Log(queue.Length);
     }
     private void ChangeColor()
     {
@@ -52,14 +53,21 @@ public class GameplayController : MonoBehaviour
     }
     private void OnCollisionEnter2D(Collision2D coll)
     {
-        if (j <= queue.Length)
+        if (j < queue.Length)
         {
             if (coll.gameObject.tag == queue[j])
             {
                 isWaitingForChangeColor = true;
                 poems.Add(queue[j]);
-                j++;
+                if (j < queue.Length - 1)
+                {
+                    j++;
+                }
             }
+        }
+        else
+        {
+            isWaitingForChangeColor = false;
         }
     }
 }
