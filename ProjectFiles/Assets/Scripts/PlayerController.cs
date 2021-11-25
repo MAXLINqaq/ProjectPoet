@@ -11,13 +11,15 @@ public class PlayerController : MonoBehaviour
     public Transform groundCheck;
     public LayerMask ground;
 
-    public  bool isGround,isJump;
+    public bool isGround, isJump;
     public int jumpAbility;
+    public PhysicsMaterial2D withFriction;//有摩擦力的材质
+    public PhysicsMaterial2D withoutFriction;//没有摩擦力的材质
     bool jumpPressed;
-    
+
     int jumpCount;
     // Start is called before the first frame update
-    private void Awake() 
+    private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
@@ -27,47 +29,59 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetButtonDown("Jump")&&jumpCount >0)
+        if (Input.GetButtonDown("Jump") && jumpCount > 0)
         {
-            jumpPressed =true;
+            jumpPressed = true;
         }
     }
-    private void FixedUpdate() 
+    private void FixedUpdate()
     {
-        isGround =Physics2D.OverlapCircle(groundCheck.position,0.1f,ground);
+        isGround = Physics2D.OverlapCircle(groundCheck.position, 0.1f, ground);
 
         GroundMovement();
         Jump();
+        ChangePhysicsMaterial2D();
     }
     void GroundMovement()
     {
         float horizontalMove = Input.GetAxisRaw("Horizontal");
-        rb .velocity =new Vector2(horizontalMove*speed,rb .velocity.y);
-        if(horizontalMove!=0)
+        rb.velocity = new Vector2(horizontalMove * speed, rb.velocity.y);
+        if (horizontalMove != 0)
         {
-           transform .localScale =new Vector3(horizontalMove,1,1); 
+            transform.localScale = new Vector3(horizontalMove, 1, 1);
         }
     }
 
     void Jump()
     {
-        if(isGround)
+        if (isGround)
         {
-            jumpCount =jumpAbility;
+            jumpCount = jumpAbility;
             isJump = false;
         }
-        if(jumpPressed && isGround)
+        if (jumpPressed && isGround)
         {
             isJump = true;
-            rb.velocity =new Vector2(rb.velocity.x,jumpForce);
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
             jumpCount--;
-            jumpPressed =false;
-        }   
-        else if(jumpPressed&&jumpCount>0 && isJump)
+            jumpPressed = false;
+        }
+        else if (jumpPressed && jumpCount > 0 && isJump)
         {
-            rb.velocity =new Vector2(rb.velocity.x,jumpForce);
-            jumpCount --;
-            jumpPressed =false;
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            jumpCount--;
+            jumpPressed = false;
+        }
+    }
+    void ChangePhysicsMaterial2D()
+    {
+        if (isGround)
+        {
+            rb.sharedMaterial = withFriction;
+        }
+        else
+        {
+            rb.sharedMaterial = withoutFriction;
         }
     }
 }
