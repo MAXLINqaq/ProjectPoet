@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -21,10 +21,10 @@ public class PlayerController : MonoBehaviour
     public PhysicsMaterial2D withoutFriction;//没有摩擦力的材质
     public GameplayController gameplayController;
     bool jumpPressed;
-
-    int jumpCount;
+    int jumpCount, jumpFrameFall, jumpFrameLeaveGround;
     float horizontalMove;
-    public Vector3 test;
+    public float jumpTime;
+
 
     // Start is called before the first frame update
     private void Awake()
@@ -49,6 +49,10 @@ public class PlayerController : MonoBehaviour
             isDead = false;
             gameplayController.isWaitingForChangeColor = true;
             gameplayController.j = 0;
+        }
+        if (jumpPressed)
+        {
+            jumpTime += Time.deltaTime;
         }
     }
     private void FixedUpdate()
@@ -88,33 +92,58 @@ public class PlayerController : MonoBehaviour
 
         if (horizontalMove != 0)
         {
-
             transform.localScale = new Vector3(horizontalMove, 1, 1);
         }
         else
         {
             rb.velocity = new Vector3(0, rb.velocity.y, 0);
         }
-        test = rb.velocity;
     }
 
     void Jump()
     {
+        //落地前3帧摁下跳跃仍然能够起跳
+        if (jumpPressed && !isGround)
+        {
+            jumpFrameFall++;
+        }
         if (isGround)
         {
             jumpCount = jumpAbility;
             isJump = false;
+            if (jumpFrameFall < 4 && jumpFrameFall > 0)
+            {
+                JumpAddVelocity();
+                jumpFrameFall = 0;
+            }
         }
+        //离开平台后一段时间内仍然可以起跳
+        if (isGround && jumpFrameLeaveGround < 4)
+        {
+            jumpFrameLeaveGround++;
+        }
+        if (!isGround && jumpFrameLeaveGround > 4)
+        {
+            jumpFrameLeaveGround = 0;
+        }
+        if (!isGround && jumpFrameLeaveGround < 4)
+        {
+            JumpAddVelocity();
+            jumpFrameLeaveGround = 0;
+        }
+
+
         if (jumpPressed && isGround)
         {
             isJump = true;
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            JumpAddVelocity();
+
             jumpCount--;
             jumpPressed = false;
         }
         else if (jumpPressed && jumpCount > 0 && isJump)
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            JumpAddVelocity();
             jumpCount--;
             jumpPressed = false;
         }
@@ -124,7 +153,6 @@ public class PlayerController : MonoBehaviour
         if (isGround)
         {
             rb.sharedMaterial = withFriction;
-
         }
         else
         {
@@ -147,5 +175,17 @@ public class PlayerController : MonoBehaviour
     private void OnDisable()
     {
         controls.Gameplay.Disable();
+    }
+    private void JumpAddVelocity()
+    {
+        if (jumpTime < 0.05)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce / 2);
+        }
+        else
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+        }
+        jumpTime = 0;
     }
 }
