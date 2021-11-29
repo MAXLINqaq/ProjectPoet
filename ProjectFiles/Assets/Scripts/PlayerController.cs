@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    PlayerControls controls;
     private Rigidbody2D rb;
     private Collider2D coll;
 
@@ -21,22 +23,26 @@ public class PlayerController : MonoBehaviour
     bool jumpPressed;
 
     int jumpCount;
+    float horizontalMove;
+    public Vector3 test;
+
     // Start is called before the first frame update
     private void Awake()
     {
+        controls = new PlayerControls();
         rb = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
         restratPoint.parent = null;
+        controls.Gameplay.Jump.performed += ctx => jumpPress(); //lamda 表达式
+        controls.Gameplay.Move.performed += ctx => horizontalMove = ctx.ReadValue<float>();
+        controls.Gameplay.Move.canceled += ctx => horizontalMove = 0;
     }
 
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButtonDown("Jump") && jumpCount > 0)
-        {
-            jumpPressed = true;
-        }
+
         if (isDead)
         {
             transform.position = restratPoint.position;
@@ -56,7 +62,21 @@ public class PlayerController : MonoBehaviour
     }
     void GroundMovement()
     {
-        float horizontalMove = Input.GetAxisRaw("Horizontal");
+
+        if (horizontalMove > 0.001)
+        {
+            horizontalMove = 1;
+        }
+        else if (horizontalMove < -0.001)
+        {
+            horizontalMove = -1;
+        }
+        else
+        {
+            horizontalMove = 0;
+        }
+
+
         if (Mathf.Abs(rb.velocity.x) < maxSpeed)
         {
             rb.AddForce(new Vector3(horizontalMove, 0, 0) * moveForce);
@@ -68,12 +88,14 @@ public class PlayerController : MonoBehaviour
 
         if (horizontalMove != 0)
         {
+
             transform.localScale = new Vector3(horizontalMove, 1, 1);
         }
         else
         {
             rb.velocity = new Vector3(0, rb.velocity.y, 0);
         }
+        test = rb.velocity;
     }
 
     void Jump()
@@ -102,10 +124,28 @@ public class PlayerController : MonoBehaviour
         if (isGround)
         {
             rb.sharedMaterial = withFriction;
+
         }
         else
         {
             rb.sharedMaterial = withoutFriction;
         }
+    }
+
+    private void jumpPress()
+    {
+        if (jumpCount > 0)
+        {
+            jumpPressed = true;
+        }
+    }
+    private void OnEnable()
+    {
+        controls.Gameplay.Enable();
+    }
+
+    private void OnDisable()
+    {
+        controls.Gameplay.Disable();
     }
 }

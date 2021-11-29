@@ -5,27 +5,27 @@ m_ProjectFiles:
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 637734426356168239
-    m_Hash: 3182876870
+      ticks: 637737695266134207
+    m_Hash: 2393523153
   m_LockFileStatus:
     m_FilePath: H:/MyUnityProject/PorjectPoet/ProjectFiles/Packages/packages-lock.json
     m_PathExists: 1
     m_ContentTrackingEnabled: 1
     m_ModificationDate:
       serializedVersion: 2
-      ticks: 637734426358967126
-    m_Hash: 2302761971
+      ticks: 637737695267505709
+    m_Hash: 2905164335
 m_EmbeddedPackageManifests:
   m_ManifestsStatus: {}
 m_PackageAssets:
   m_Packages:
     m_ResolvedPackages:
-    - packageId: com.unity.2d.animation@5.0.6
+    - packageId: com.unity.2d.animation@5.0.9
       testable: 0
       isDirectDependency: 1
-      version: 5.0.6
+      version: 5.0.9
       source: 1
-      resolvedPath: H:\MyUnityProject\PorjectPoet\ProjectFiles\Library\PackageCache\com.unity.2d.animation@5.0.6
+      resolvedPath: H:\MyUnityProject\PorjectPoet\ProjectFiles\Library\PackageCache\com.unity.2d.animation@5.0.9
       assetPath: Packages/com.unity.2d.animation
       name: com.unity.2d.animation
       displayName: 2D Animation
@@ -166,13 +166,13 @@ m_PackageAssets:
       entitlements:
         isAllowed: 1
       isAssetStorePackage: 0
-      datePublishedTicks: 637594727470000000
+      datePublishedTicks: 637704378040000000
       documentationUrl: 
       hasRepository: 1
       repository:
         type: git
         url: https://github.cds.internal.unity3d.com/unity/2d.git
-        revision: 9e7fd5cbe078d004f1e87ecdf3b57436664a690a
+        revision: 66590de9de7c21359f721ef05db04d7f1753bde9
         path: 
     - packageId: com.unity.2d.pixel-perfect@4.0.1
       testable: 0
@@ -347,7 +347,7 @@ m_PackageAssets:
       - name: com.unity.modules.uielementsnative
         version: 1.0.0
       - name: com.unity.2d.animation
-        version: 5.0.6
+        version: 5.0.9
       - name: com.unity.mathematics
         version: 1.1.0
       - name: com.unity.modules.animation
