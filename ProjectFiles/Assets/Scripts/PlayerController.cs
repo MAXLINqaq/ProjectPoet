@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
     private Collider2D coll;
 
-    public float maxSpeed, jumpForce, moveForce;
+    public float maxSpeed, jumpForce, jumpHoldForce, moveForce;
     public Transform groundCheck;
     public Transform restratPoint;
     public LayerMask ground;
@@ -20,10 +20,10 @@ public class PlayerController : MonoBehaviour
     public PhysicsMaterial2D withFriction;//有摩擦力的材质
     public PhysicsMaterial2D withoutFriction;//没有摩擦力的材质
     public GameplayController gameplayController;
-    bool jumpPressed;
+    bool jumpPressed, jumpFrameCount, jumpHold, jumpStart;
     int jumpCount, jumpFrameFall, jumpFrameLeaveGround;
-    float horizontalMove;
     public float jumpTime;
+    float horizontalMove;
 
 
     // Start is called before the first frame update
@@ -33,7 +33,9 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         coll = GetComponent<Collider2D>();
         restratPoint.parent = null;
-        controls.Gameplay.Jump.performed += ctx => jumpPress(); //lamda 表达式
+        controls.Gameplay.Jump.started += ctx => jumpHold = true;
+        controls.Gameplay.Jump.canceled += ctx => jumpHold = false;
+        controls.Gameplay.Jump.performed += ctx => jumpPress();//lamda 表达式
         controls.Gameplay.Move.performed += ctx => horizontalMove = ctx.ReadValue<float>();
         controls.Gameplay.Move.canceled += ctx => horizontalMove = 0;
     }
@@ -42,7 +44,14 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (jumpHold)
+        {
+            jumpTime += Time.deltaTime;
+        }
+        else
+        {
+            jumpTime = 0;
+        }
         if (isDead)
         {
             transform.position = restratPoint.position;
@@ -50,19 +59,17 @@ public class PlayerController : MonoBehaviour
             gameplayController.isWaitingForChangeColor = true;
             gameplayController.j = 0;
         }
-        if (jumpPressed)
-        {
-            jumpTime += Time.deltaTime;
-        }
     }
     private void FixedUpdate()
     {
         isGround = Physics2D.OverlapCircle(groundCheck.position, 0.1f, ground);
         isDead = Physics2D.OverlapCircle(groundCheck.position, 0.1f, deadZone);
 
+
         GroundMovement();
         Jump();
         ChangePhysicsMaterial2D();
+        JumpAddMoreFoce();
     }
     void GroundMovement()
     {
@@ -111,9 +118,9 @@ public class PlayerController : MonoBehaviour
         {
             jumpCount = jumpAbility;
             isJump = false;
-            if (jumpFrameFall < 4 && jumpFrameFall > 0)
+            if (jumpFrameFall < 3 && jumpFrameFall > 0)
             {
-                JumpAddVelocity();
+                JumpAddForce();
                 jumpFrameFall = 0;
             }
         }
@@ -128,7 +135,7 @@ public class PlayerController : MonoBehaviour
         }
         if (!isGround && jumpFrameLeaveGround < 4)
         {
-            JumpAddVelocity();
+            JumpAddForce();
             jumpFrameLeaveGround = 0;
         }
 
@@ -136,16 +143,11 @@ public class PlayerController : MonoBehaviour
         if (jumpPressed && isGround)
         {
             isJump = true;
-            JumpAddVelocity();
-
-            jumpCount--;
-            jumpPressed = false;
+            JumpAddForce();
         }
         else if (jumpPressed && jumpCount > 0 && isJump)
         {
-            JumpAddVelocity();
-            jumpCount--;
-            jumpPressed = false;
+            JumpAddForce();
         }
     }
     void ChangePhysicsMaterial2D()
@@ -176,16 +178,20 @@ public class PlayerController : MonoBehaviour
     {
         controls.Gameplay.Disable();
     }
-    private void JumpAddVelocity()
+    private void JumpAddForce()
     {
-        if (jumpTime < 0.05)
+        rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
+        jumpCount--;
+        jumpPressed = false;
+        jumpStart = true;
+    }
+    private void JumpAddMoreFoce()
+    {
+        if (jumpTime > 0.15 && jumpStart && rb.velocity.y > 0)
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce / 2);
+            rb.AddForce(new Vector2(0f, jumpHoldForce), ForceMode2D.Impulse);
+            jumpHold = false;
+            jumpStart = false;
         }
-        else
-        {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-        }
-        jumpTime = 0;
     }
 }

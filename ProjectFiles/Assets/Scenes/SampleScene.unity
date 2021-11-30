@@ -950,8 +950,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.051965952, y: 0.5}
-  m_Size: {x: 0.5219121, y: 1}
+  m_Offset: {x: 0.03347683, y: 0.50283265}
+  m_Size: {x: 0.55889034, y: 0.9943347}
   m_Direction: 0
 --- !u!212 &1246109906
 SpriteRenderer:
@@ -1032,8 +1032,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 310b904c7efdae94fb3b8dd223529c9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 4
-  jumpForce: 10
+  maxSpeed: 6
+  jumpForce: 12
+  jumpHoldForce: 4
   moveForce: 50
   groundCheck: {fileID: 1260300994}
   restratPoint: {fileID: 1827989963}
@@ -1043,14 +1044,14 @@ MonoBehaviour:
   deadZone:
     serializedVersion: 2
     m_Bits: 512
-  isGround: 0
+  isGround: 1
   isJump: 0
   isDead: 0
   jumpAbility: 1
   withFriction: {fileID: 6200000, guid: 2a5e07f2301b52e4799baa2f6177c09e, type: 2}
   withoutFriction: {fileID: 6200000, guid: 443062f75c8a4b74ab41fd785a64c729, type: 2}
   gameplayController: {fileID: 1246109909}
-  test: {x: 0, y: 0, z: 0}
+  jumpTime: 0
 --- !u!114 &1246109909
 MonoBehaviour:
   m_ObjectHideFlags: 0
