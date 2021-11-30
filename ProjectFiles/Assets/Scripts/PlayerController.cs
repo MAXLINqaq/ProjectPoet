@@ -8,8 +8,11 @@ public class PlayerController : MonoBehaviour
     PlayerControls controls;
     private Rigidbody2D rb;
     private Collider2D coll;
-
-    public float maxSpeed, jumpForce, jumpHoldForce, moveForce;
+    public PhysicsMaterial2D withFriction;//有摩擦力的材质
+    public PhysicsMaterial2D withoutFriction;//没有摩擦力的材质
+    public GameplayController gameplayController;
+    public float groundMoveSpeed,skyMoveSpeed ;
+    public float  jumpForce, jumpHoldForce, moveForce;
     public Transform groundCheck;
     public Transform restratPoint;
     public LayerMask ground;
@@ -17,13 +20,11 @@ public class PlayerController : MonoBehaviour
 
     public bool isGround, isJump, isDead;
     public int jumpAbility;
-    public PhysicsMaterial2D withFriction;//有摩擦力的材质
-    public PhysicsMaterial2D withoutFriction;//没有摩擦力的材质
-    public GameplayController gameplayController;
     bool jumpPressed, jumpFrameCount, jumpHold, jumpStart;
     int jumpCount, jumpFrameFall, jumpFrameLeaveGround;
-    public float jumpTime;
-    float horizontalMove;
+    float jumpTime;
+    float horizontalMove,moveSpeed;
+    int moveSpeedUpFrame, moveFace, moveSpeedDownFrame;
 
 
     // Start is called before the first frame update
@@ -64,7 +65,14 @@ public class PlayerController : MonoBehaviour
     {
         isGround = Physics2D.OverlapCircle(groundCheck.position, 0.1f, ground);
         isDead = Physics2D.OverlapCircle(groundCheck.position, 0.1f, deadZone);
-
+        if(isGround)
+        {
+            moveSpeed = groundMoveSpeed;
+        }
+        else
+        {
+            moveSpeed = skyMoveSpeed;
+        }
 
         GroundMovement();
         Jump();
@@ -86,15 +94,49 @@ public class PlayerController : MonoBehaviour
         {
             horizontalMove = 0;
         }
-
-
-        if (Mathf.Abs(rb.velocity.x) < maxSpeed)
+        if (horizontalMove != 0)
         {
-            rb.AddForce(new Vector3(horizontalMove, 0, 0) * moveForce);
+            moveSpeedUpFrame++;
+            if (rb.velocity.x * horizontalMove == 0)//为移动赋予初始速度
+            {
+                rb.velocity = new Vector3(horizontalMove * moveSpeed / 6, rb.velocity.y, 0);
+            }
+            else if (rb.velocity.x * horizontalMove > 0)//当前速度与移动方向相同
+            {
+                if (moveSpeedUpFrame++ < 7 && moveSpeedUpFrame != 0)
+                {
+                    rb.velocity = rb.velocity + new Vector2(horizontalMove * moveSpeed / 6, 0);
+                }
+                else
+                {
+                    rb.velocity = new Vector3(horizontalMove * moveSpeed, rb.velocity.y, 0);
+                    moveSpeedUpFrame = 0;
+                }
+            }
+            else if (rb.velocity.x * horizontalMove < 0)
+            {
+                rb.velocity = rb.velocity + new Vector2(horizontalMove * moveSpeed / 4, 0);
+                if (rb.velocity.x * horizontalMove > 0)
+                {
+                    rb.velocity = new Vector2(0, rb.velocity.y);
+                }
+            }
         }
         else
         {
-            rb.velocity = new Vector3(horizontalMove * maxSpeed, rb.velocity.y, 0);
+            if (rb.velocity.x != 0) //减速
+            {
+                moveSpeedDownFrame++;
+                if (moveSpeedDownFrame < 4 && moveSpeedDownFrame != 0)
+                {
+                    rb.velocity = new Vector3(moveSpeed * (3 - moveSpeedDownFrame) / 3, rb.velocity.y, 0);
+                }
+                else
+                {
+                    rb.velocity = new Vector3(0, 0, 0);
+                    moveSpeedDownFrame = 0;
+                }
+            }
         }
 
         if (horizontalMove != 0)

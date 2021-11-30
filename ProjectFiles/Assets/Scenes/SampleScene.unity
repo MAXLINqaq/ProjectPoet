@@ -1032,7 +1032,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 310b904c7efdae94fb3b8dd223529c9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxSpeed: 6
+  withFriction: {fileID: 6200000, guid: 2a5e07f2301b52e4799baa2f6177c09e, type: 2}
+  withoutFriction: {fileID: 6200000, guid: 443062f75c8a4b74ab41fd785a64c729, type: 2}
+  gameplayController: {fileID: 1246109909}
+  groundMoveSpeed: 6
+  skyMoveSpeed: 4
   jumpForce: 12
   jumpHoldForce: 4
   moveForce: 50
@@ -1048,10 +1052,6 @@ MonoBehaviour:
   isJump: 0
   isDead: 0
   jumpAbility: 1
-  withFriction: {fileID: 6200000, guid: 2a5e07f2301b52e4799baa2f6177c09e, type: 2}
-  withoutFriction: {fileID: 6200000, guid: 443062f75c8a4b74ab41fd785a64c729, type: 2}
-  gameplayController: {fileID: 1246109909}
-  jumpTime: 0
 --- !u!114 &1246109909
 MonoBehaviour:
   m_ObjectHideFlags: 0
