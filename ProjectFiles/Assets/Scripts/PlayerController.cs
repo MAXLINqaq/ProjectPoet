@@ -11,8 +11,8 @@ public class PlayerController : MonoBehaviour
     public PhysicsMaterial2D withFriction;//有摩擦力的材质
     public PhysicsMaterial2D withoutFriction;//没有摩擦力的材质
     public GameplayController gameplayController;
-    public float groundMoveSpeed,skyMoveSpeed ;
-    public float  jumpForce, jumpHoldForce, moveForce;
+    public float groundMoveSpeed, skyMoveSpeed;
+    public float jumpForce, jumpHoldForce, moveForce;
     public Transform groundCheck;
     public Transform restratPoint;
     public LayerMask ground;
@@ -23,8 +23,9 @@ public class PlayerController : MonoBehaviour
     bool jumpPressed, jumpFrameCount, jumpHold, jumpStart;
     int jumpCount, jumpFrameFall, jumpFrameLeaveGround;
     float jumpTime;
-    float horizontalMove,moveSpeed;
-    int moveSpeedUpFrame, moveFace, moveSpeedDownFrame;
+    float horizontalMove, moveSpeed;
+    int moveSpeedUpFrame, moveSpeedDownFrame, moveTurnFrame;
+    public Vector3 v;
 
 
     // Start is called before the first frame update
@@ -60,12 +61,14 @@ public class PlayerController : MonoBehaviour
             gameplayController.isWaitingForChangeColor = true;
             gameplayController.j = 0;
         }
+        v = rb.velocity;
+
     }
     private void FixedUpdate()
     {
         isGround = Physics2D.OverlapCircle(groundCheck.position, 0.1f, ground);
         isDead = Physics2D.OverlapCircle(groundCheck.position, 0.1f, deadZone);
-        if(isGround)
+        if (isGround)
         {
             moveSpeed = groundMoveSpeed;
         }
@@ -73,11 +76,10 @@ public class PlayerController : MonoBehaviour
         {
             moveSpeed = skyMoveSpeed;
         }
-
-        GroundMovement();
         Jump();
         ChangePhysicsMaterial2D();
         JumpAddMoreFoce();
+        GroundMovement();
     }
     void GroundMovement()
     {
@@ -96,16 +98,19 @@ public class PlayerController : MonoBehaviour
         }
         if (horizontalMove != 0)
         {
-            moveSpeedUpFrame++;
+
             if (rb.velocity.x * horizontalMove == 0)//为移动赋予初始速度
             {
+                //moveSpeedUpFrame++;
                 rb.velocity = new Vector3(horizontalMove * moveSpeed / 6, rb.velocity.y, 0);
             }
             else if (rb.velocity.x * horizontalMove > 0)//当前速度与移动方向相同
             {
-                if (moveSpeedUpFrame++ < 7 && moveSpeedUpFrame != 0)
+
+                if (moveSpeedUpFrame < 7 && moveSpeedUpFrame != 0)
                 {
-                    rb.velocity = rb.velocity + new Vector2(horizontalMove * moveSpeed / 6, 0);
+                    moveSpeedUpFrame++;
+                    rb.velocity = new Vector3(horizontalMove * moveSpeed * moveSpeedUpFrame / 6, rb.velocity.y, 0);
                 }
                 else
                 {
@@ -115,10 +120,14 @@ public class PlayerController : MonoBehaviour
             }
             else if (rb.velocity.x * horizontalMove < 0)
             {
-                rb.velocity = rb.velocity + new Vector2(horizontalMove * moveSpeed / 4, 0);
-                if (rb.velocity.x * horizontalMove > 0)
+                moveTurnFrame++;
+                if (moveTurnFrame < 2 && moveTurnFrame != 0)
                 {
-                    rb.velocity = new Vector2(0, rb.velocity.y);
+                    rb.velocity = new Vector3(moveSpeed * moveTurnFrame / 2, rb.velocity.y, 0);
+                }
+                else
+                {
+                    rb.velocity = new Vector3(0, rb.velocity.y, 0);
                 }
             }
         }
@@ -133,7 +142,7 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    rb.velocity = new Vector3(0, 0, 0);
+                    rb.velocity = new Vector3(0, rb.velocity.y, 0);
                     moveSpeedDownFrame = 0;
                 }
             }
