@@ -198,7 +198,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (jumpPressed && jumpCount > 0 && isJump)
         {
-            JumpAddForce();
+            JumpAddVelocity();
         }
     }
     void ChangePhysicsMaterial2D()
@@ -244,5 +244,12 @@ public class PlayerController : MonoBehaviour
             jumpHold = false;
             jumpStart = false;
         }
+    }
+    private void JumpAddVelocity()
+    {
+        rb.velocity = new Vector3(rb.velocity.x, 12* moveForce * Time.deltaTime, 0);
+        jumpCount--;
+        jumpPressed = false;
+        jumpStart = true;
     }
 }
